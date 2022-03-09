@@ -1,4 +1,11 @@
+import asyncio
 import logging
+
+from .utils import check_config
+
+DEFAULT_PING_COUNT = 5 # (1 - 9)
+DEFAULT_PING_INTERVAL = 1 # (1s - 9s)
+DEFAULT_PING_TIMEOUT = 10
 
 
 class Base:
@@ -8,9 +15,15 @@ class Base:
     @classmethod
     async def run(cls, data, asset_config=None):
         try:
-            asset_id = data['hostUuid']
+            asset_id = data['hostUuid'] # TODO remove?
             config = data['hostConfig']['probeConfig']['pingProbe']
-            ip4 = config['ip4']
+            ping_address = config['ip4']
+            ping_count = config.get('count', DEFAULT_PING_COUNT)
+            ping_interval = config.get('interval', DEFAULT_PING_INTERVAL)
+            ping_timeout = config.get('timeout', DEFAULT_PING_TIMEOUT)
+
+            check_config(ping_count, ping_interval)
+
             interval = data.get('checkConfig', {}).get('metaConfig', {}).get(
                 'checkInterval')
             assert interval is None or isinstance(interval, int)
@@ -18,4 +31,46 @@ class Base:
             logging.error(f'invalid check configuration: `{e}`')
             return
 
-	...
+        max_runtime = .8 * (interval or cls.interval) # TODO .8?
+        try:
+            state_data = await asyncio.wait_for(
+                cls.get_data(ping_address, ping_count, ping_interval, ping_timeout),
+                timeout=max_runtime
+            )
+        except asyncio.TimeoutError:
+            raise Exception('Check timed out.')
+        except Exception as e:
+            raise Exception(f'Check error: {e.__class__.__name__}: {e}')
+        else:
+            return state_data
+
+
+    @classmethod
+    async def get_data(cls, address, count, interval, timeout):
+        data = None
+        try:
+            data = await cls.run_check(address, count, interval, timeout)
+        except Exception as err:
+            logging.exception(f'Ping error: `{err}`\n')
+            raise
+
+        try:
+            state = cls.iterate_results(data)
+        except Exception:
+            logging.exception('Ping parse error\n')
+            raise
+
+        return state
+
+    @classmethod
+    def on_item(itm):
+        return itm
+
+    @classmethod
+    def iterate_results(cls, data):
+        itm = cls.on_item(data)
+        state = {}
+        state[cls.type_name] = {}
+        name = itm['name']
+        state[cls.type_name][name] = itm
+        return state
