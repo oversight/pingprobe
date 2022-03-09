@@ -3,19 +3,20 @@ import logging
 
 from .utils import check_config
 
-DEFAULT_PING_COUNT = 5 # (1 - 9)
-DEFAULT_PING_INTERVAL = 1 # (1s - 9s)
+DEFAULT_PING_COUNT = 5  # (1 - 9)
+DEFAULT_PING_INTERVAL = 1  # (1s - 9s)
 DEFAULT_PING_TIMEOUT = 10
 
 
 class Base:
     interval = 300
     required = False
+    type_name = None
 
     @classmethod
     async def run(cls, data, asset_config=None):
         try:
-            asset_id = data['hostUuid'] # TODO remove?
+            asset_id = data['hostUuid']  # TODO remove?
             config = data['hostConfig']['probeConfig']['pingProbe']
             ping_address = config['ip4']
             ping_count = config.get('count', DEFAULT_PING_COUNT)
@@ -23,19 +24,16 @@ class Base:
             ping_timeout = config.get('timeout', DEFAULT_PING_TIMEOUT)
 
             check_config(ping_count, ping_interval)
-
-            interval = data.get('checkConfig', {}).get('metaConfig', {}).get(
-                'checkInterval')
-            assert interval is None or isinstance(interval, int)
         except Exception as e:
             logging.error(f'invalid check configuration: `{e}`')
             return
 
-        max_runtime = .8 * (interval or cls.interval) # TODO .8?
         try:
-            state_data = await asyncio.wait_for(
-                cls.get_data(ping_address, ping_count, ping_interval, ping_timeout),
-                timeout=max_runtime
+            state_data = await cls.get_data(
+                ping_address,
+                ping_count,
+                ping_interval,
+                ping_timeout
             )
         except asyncio.TimeoutError:
             raise Exception('Check timed out.')
@@ -43,7 +41,6 @@ class Base:
             raise Exception(f'Check error: {e.__class__.__name__}: {e}')
         else:
             return state_data
-
 
     @classmethod
     async def get_data(cls, address, count, interval, timeout):
@@ -62,7 +59,11 @@ class Base:
 
         return state
 
-    @classmethod
+    @staticmethod
+    async def run_check(address, count, interval, timeout):
+        pass
+
+    @staticmethod
     def on_item(itm):
         return itm
 

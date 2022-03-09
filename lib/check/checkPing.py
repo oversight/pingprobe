@@ -22,13 +22,13 @@ class CheckPing(Base):
         minTime = None
 
         if itm.is_alive:
-            maxTime = itm.max_rtt * 1000 # float (s)
-            minTime = itm.min_rtt * 1000 # float (s)
+            maxTime = itm.max_rtt * 1000  # float (s)
+            minTime = itm.min_rtt * 1000  # float (s)
 
         return {
-            'droppedCount': itm.packet_loss, # int
-            'successCount': itm.packets_received, # int
-            'name': 'ping', # unicode
+            'droppedCount': itm.packet_loss,  # int
+            'successCount': itm.packets_received,  # int
+            'name': 'ping',  # unicode
             'maxTime': maxTime,
             'minTime': minTime
         }
