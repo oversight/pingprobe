@@ -18,17 +18,17 @@ class CheckPing(Base):
 
     @staticmethod
     def on_item(itm):
-        maxTime = None
-        minTime = None
+        max_time = None
+        min_time = None
 
         if itm.is_alive:
-            maxTime = itm.max_rtt * 1000  # float (s)
-            minTime = itm.min_rtt * 1000  # float (s)
+            max_time = itm.max_rtt * 1000  # float (s)
+            min_time = itm.min_rtt * 1000  # float (s)
 
         return {
             'droppedCount': itm.packet_loss,  # int
             'successCount': itm.packets_received,  # int
             'name': 'ping',  # unicode
-            'maxTime': maxTime,
-            'minTime': minTime
+            'maxTime': max_time,
+            'minTime': min_time
         }
