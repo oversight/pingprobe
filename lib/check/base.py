@@ -52,7 +52,7 @@ class Base:
             raise
 
         try:
-            state = cls.iterate_results(data)
+            state = cls.get_result(data)
         except Exception:
             logging.exception('Ping parse error\n')
             raise
@@ -68,7 +68,7 @@ class Base:
         return itm
 
     @classmethod
-    def iterate_results(cls, data):
+    def get_result(cls, data):
         itm = cls.on_item(data)
         state = {}
         state[cls.type_name] = {}
