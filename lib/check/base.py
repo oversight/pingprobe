@@ -9,7 +9,6 @@ DEFAULT_PING_TIMEOUT = 10
 
 
 class Base:
-    interval = 300
     required = False
     type_name = None
 
