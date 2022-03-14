@@ -16,7 +16,8 @@ class Base:
     @classmethod
     async def run(cls, data, asset_config=None):
         try:
-            asset_id = data['hostUuid']  # TODO remove?
+            # If asset_id is needed in future; uncomment next line:
+            # asset_id = data['hostUuid']
             config = data['hostConfig']['probeConfig']['pingProbe']
             ping_address = config['ip4']
             ping_count = config.get('count', DEFAULT_PING_COUNT)
@@ -48,13 +49,13 @@ class Base:
         try:
             data = await cls.run_check(address, count, interval, timeout)
         except Exception as err:
-            logging.exception(f'Ping error: `{err}`\n')
+            logging.exception(f'Ping error (address: {address}): `{err}`\n')
             raise
 
         try:
             state = cls.get_result(data)
         except Exception:
-            logging.exception('Ping parse error\n')
+            logging.exception(f'Ping parse error (address: {address})\n')
             raise
 
         return state
