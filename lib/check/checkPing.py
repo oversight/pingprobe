@@ -26,7 +26,7 @@ class CheckPing(Base):
             min_time = itm.min_rtt * 1000  # float (s)
 
         return {
-            'droppedCount': itm.packet_loss,  # int
+            'droppedCount': itm.packet_sent - itm.packet_received,  # int
             'successCount': itm.packets_received,  # int
             'name': 'ping',  # unicode
             'maxTime': max_time,
