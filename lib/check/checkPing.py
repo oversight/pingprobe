@@ -22,8 +22,8 @@ class CheckPing(Base):
         min_time = None
 
         if itm.is_alive:
-            max_time = itm.max_rtt * 1000  # float (s)
-            min_time = itm.min_rtt * 1000  # float (s)
+            max_time = itm.max_rtt / 1000  # float (s)
+            min_time = itm.min_rtt / 1000  # float (s)
 
         return {
             'droppedCount': itm.packets_sent - itm.packets_received,  # int
