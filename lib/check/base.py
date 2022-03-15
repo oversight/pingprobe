@@ -11,6 +11,7 @@ DEFAULT_PING_TIMEOUT = 10
 class Base:
     required = False
     type_name = None
+    interval = 300  # interval is required, as it is used by agentcoreclient
 
     @classmethod
     async def run(cls, data, asset_config=None):
