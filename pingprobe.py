@@ -6,9 +6,9 @@ from lib.version import __version__ as version
 
 if __name__ == '__main__':
     checks = {
-        'checkPing': check_ping
+        'ping': check_ping
     }
 
-    probe = Probe("pingProbe", version, checks)
+    probe = Probe("ping", version, checks)
 
     asyncio.run(probe.start())
