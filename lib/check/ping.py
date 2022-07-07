@@ -10,7 +10,7 @@ TYPE_NAME = 'icmp'
 ITEM_NAME = 'ping'
 
 
-def get_item(itm, name):
+def get_item(itm):
     max_time = None
     min_time = None
 
@@ -19,7 +19,6 @@ def get_item(itm, name):
         min_time = itm.min_rtt / 1000  # float (s)
 
     return {
-        'name': name,  # unicode
         'droppedCount': itm.packets_sent - itm.packets_received,  # int
         'successCount': itm.packets_received,  # int
         'maxTime': max_time,  # float (s) or None
@@ -30,7 +29,7 @@ def get_item(itm, name):
 def get_state(data):
     state = {
         TYPE_NAME: {
-            ITEM_NAME: get_item(data, ITEM_NAME)
+            ITEM_NAME: get_item(data)
         }
     }
     return state
