@@ -36,7 +36,9 @@ def get_state(data):
 
 
 async def check_ping(asset: Asset, asset_config: dict, check_config: dict):
-    address = check_config['address']
+    address = check_config.get('address')
+    if not address:
+        address = asset.name
     count = check_config.get('count', DEFAULT_PING_COUNT)
     interval = check_config.get('interval', DEFAULT_PING_INTERVAL)
     timeout = check_config.get('timeout', DEFAULT_PING_TIMEOUT)
